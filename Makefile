@@ -1,9 +1,6 @@
 install:
 		poetry install
 
-# возможно не нужна команда
-build:
-		poetry build
 
 build-db: db-drop db-create schema-data-load
 
@@ -41,10 +38,10 @@ db-show-log:
 		vim /var/log/postgresql/postgresql-14-main.log
 
 db-dump:
-		pg_dump -h localhost -d third-project -U ypekatoros -p 5432 -W -Ft > third-project-db.dump
+		pg_dump -h localhost -d third-project -U ypekatoros -W -Ft > db-project.dump
 
-db-railway-upload:
-		pg_restore -h containers-us-west-103.railway.app -U postgres -p 6091 -d railway -W -Ft third-project-db.dump
+db-railway-update:
+		pg_restore -U postgres -h containers-us-west-148.railway.app -p 7219 -W -Ft -d railway db-project.dump
 
 dev:
 		poetry run flask --app page_analyzer:app run

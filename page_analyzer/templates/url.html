@@ -26,6 +26,12 @@
             </nav>
         </header>
 
+        {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
         <main class="flex-grow-1">
             <div class="container-lg mt-3">
               <h1>Сайт: {{ name }}</h1>
@@ -36,7 +42,7 @@
               <tbody>
                 <tr>
                   <td>ID</td>
-                  <td>{{ id }}</td>
+                  <td>{{ url_id }}</td>
                 </tr>
                 <tr>
                   <td>Имя</td>
@@ -51,7 +57,7 @@
           </div>
         
             <h2 class="mt-5 mb-3">Проверки</h2>
-            <form method="post" action="">
+            <form method="post" action="/urls/{{ url_id }}/checks">
             <input type="submit" class="btn btn-primary" value="Запустить проверку">
             </form>
             
@@ -59,18 +65,30 @@
             <table class="table table-bordered table-hover mt-2" data-test="checks">
               <tbody>
             <tr>
-                <th>ID</th>
+                <th>ID проверки</th>
+                <th>ID сайта</th>
                 <th>Код ответа</th>
                 <th>h1</th>
                 <th>title</th>
                 <th>description</th>
-                <th>Дата создания</th>
+                <th>Дата проверки</th>
             </tr>
-            
+            {% if result_checks %}
+            {% for id, url_id, status_code, h1, title, description, created_at in result_checks %}
+            <tr>
+                <td>{{ id }}</td>
+                <td>{{ url_id }}</td>
+                <td>{{ status_code }}</td>
+                <td>{{ h1 }}</td>
+                <td>{{ title }}</td>
+                <td>{{ description }}</td>
+                <td>{{ created_at  }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
               </tbody>
             </table>
           </div>
-        
             </div>
           </main>
         <footer class="border-top py-3 mt-5 flex-shrink-0">

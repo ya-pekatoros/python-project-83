@@ -7,6 +7,8 @@ __pycache__/
 #Ignore env
 .env
 
+db-project.dump
+
 #Ignore installed package
 dist/
 

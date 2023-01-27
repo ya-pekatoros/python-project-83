@@ -17,7 +17,7 @@ load_dotenv()
 
 server_config = {
     'SECRET_KEY': os.getenv('SECRET_KEY'),
-    'DATABASE_URL': os.getenv('DATABASE_PROD_URL'),
+    'DATABASE_URL': os.getenv('DATABASE_DEV_URL'),
 }
 
 
@@ -36,7 +36,7 @@ def index():
     messages = get_flashed_messages(with_categories=True)
     return render_template(
         '/index.html',
-        messages=messages,
+        messages=messages
     )
 
 
@@ -50,21 +50,29 @@ def add_url():
     today = datetime.date.today().isoformat()
     with psycopg2.connect(app.config['DATABASE_URL']) as conn:
         with conn.cursor() as curs:
-            curs.execute("SELECT name FROM urls WHERE name = %s", (url_parsed['message'],))
-            if curs.fetchone() == (url_parsed['message'],):
-                flash('Страница уже существует', 'info')
-                return redirect(url_for('index'))
+            curs.execute("SELECT id, name FROM urls WHERE name = %s", (url_parsed['message'],))
+            db_answer = curs.fetchone()
+            if db_answer:
+                (result_id, name, *_) = db_answer  # I am not waiting more then 2 values here, but
+                if name == url_parsed['message']:  # I need unpuck it all for tests
+                    flash('Страница уже существует', 'info')
+                    return redirect(url_for('show_url', id=result_id))
             curs.execute('INSERT INTO urls (name, created_at) VALUES (%s, %s)',
                          (url_parsed['message'], today))
+            curs.execute("SELECT id FROM urls WHERE name = %s", (url_parsed['message'],))
+            (result_id, *_) = curs.fetchone()
     flash('Страница успешно добавлена', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('check_url', id=result_id), code=307)
 
 
 @app.route('/urls')
 def show_urls():
     with psycopg2.connect(app.config['DATABASE_URL']) as conn:
         with conn.cursor() as curs:
-            curs.execute("SELECT id, name, TO_CHAR(created_at, 'DD-MM-YYYY') FROM urls ORDER BY id DESC LIMIT 30")
+            curs.execute("SELECT urls.id, urls.name, TO_CHAR(url_checks.created_at, 'DD-MM-YYYY'), "
+                         "url_checks.status_code FROM urls JOIN url_checks ON urls.id = url_checks.url_id "
+                         "GROUP BY urls.id, urls.name, url_checks.created_at, url_checks.status_code "
+                         "ORDER BY urls.id DESC, url_checks.created_at DESC LIMIT 30")
             result = curs.fetchall()
 
     return render_template(
@@ -75,14 +83,31 @@ def show_urls():
 
 @app.route('/urls/<id>')
 def show_url(id):
+    messages = get_flashed_messages(with_categories=True)
     with psycopg2.connect(app.config['DATABASE_URL']) as conn:
         with conn.cursor() as curs:
             curs.execute("SELECT id, name, TO_CHAR(created_at, 'DD-MM-YYYY') FROM urls WHERE id = %s", (id,))
-            result = curs.fetchone()
-    (id, name, created_at) = result
+            result_url = curs.fetchone()
+            curs.execute("SELECT id, url_id, status_code, h1, title, description, "
+                         "TO_CHAR(created_at, 'DD-MM-YYYY') FROM url_checks WHERE url_id = %s "
+                         "ORDER BY id DESC LIMIT 30", (id,))
+            result_checks = curs.fetchall()
+    (url_id, name, created_at) = result_url
     return render_template(
         '/url.html',
-        id=id,
+        url_id=url_id,
         name=name,
-        created_at=created_at
+        created_at=created_at,
+        result_checks=result_checks,
+        messages=messages
     )
+
+
+@app.route('/urls/<id>/checks', methods=['POST'])
+def check_url(id):
+    today = datetime.date.today().isoformat()
+    with psycopg2.connect(app.config['DATABASE_URL']) as conn:
+        with conn.cursor() as curs:
+            curs.execute('INSERT INTO url_checks (url_id, created_at) '
+                         'VALUES (%s, %s)', (id, today))
+    return redirect(url_for('show_url', id=id))

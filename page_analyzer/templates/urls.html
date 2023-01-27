@@ -35,10 +35,11 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Имя</th>
-                                <th>Дата добавления</th>
+                                <th>Дата последней проверки</th>
+                                <th>Код ответа</th>
                             </tr>
                             {% if data %}
-                            {% for id, name, created_at in data %}
+                            {% for id, name, created_at, status_code in data %}
                             <tr>
                                 <td>{{ id }}</td>
                                 <td>
@@ -47,6 +48,7 @@
                                 </a>
                                 </td>
                                 <td>{{ created_at  }}</td>
+                                <td>{{ status_code  }}</td>
                             </tr>
                             {% endfor %}
                             {% endif %}
