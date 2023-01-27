@@ -17,7 +17,7 @@ load_dotenv()
 
 server_config = {
     'SECRET_KEY': os.getenv('SECRET_KEY'),
-    'DATABASE_URL': os.getenv('DATABASE_DEV_URL'),
+    'DATABASE_URL': os.getenv('DATABASE_PROD_URL'),
 }
 
 
