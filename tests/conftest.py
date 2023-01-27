@@ -2,12 +2,14 @@ import pytest
 from page_analyzer import app
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_app():
+    app.config['SECRET_KEY'] = 'SUPER-SECRET-KEY'
+    app.config['DATABASE_URL'] = 'TEST_URL'
+    app.testing = True
     return app
 
 
-@pytest.fixture
+@pytest.fixture()
 def client(test_app):
-    test_app.testing = True
-    return app.test_client()
+    return test_app.test_client()

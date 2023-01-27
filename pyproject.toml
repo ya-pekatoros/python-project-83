@@ -11,7 +11,9 @@ packages = [{include = "page_analyzer"}]
 python = "^3.10"
 flask = "^2.2.2"
 gunicorn = "^20.1.0"
-python-dotenv = "^0.21.0"
+psycopg2-binary = "^2.9.5"
+python-dotenv = "^0.21.1"
+validators = "^0.20.0"
 
 
 [tool.poetry.group.dev.dependencies]
