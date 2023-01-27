@@ -45,7 +45,7 @@ db-dump:
 
 db-railway-upload:
 		pg_restore -h containers-us-west-103.railway.app -U postgres -p 6091 -d railway -W -Ft third-project-db.dump
-zYE4VOwi9WwSrUW1AJnS
+
 dev:
 		poetry run flask --app page_analyzer:app run
 
