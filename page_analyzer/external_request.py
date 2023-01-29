@@ -10,6 +10,7 @@ def make_external_req(url):
         status_code = request_result.status_code
         if status_code == 200:
             data = request_result.text
+            message = 'Страница успешно проверена'
         else:
             raise Exception
     except Exception:

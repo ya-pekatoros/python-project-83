@@ -127,7 +127,7 @@ def check_url(id):
     today = datetime.date.today().isoformat()
     check_result = make_external_req(url)
     SQL_request = ['url_id, status_code, created_at', '%s, %s, %s', [id, str(check_result['status_code']), today]]
-    if check_result['message']:
+    if check_result['message'] == 'Произошла ошибка при проверке':
         flash(check_result['message'], 'danger')
         return redirect(url_for('show_url', id=id))
     check_data = get_url_data(check_result['data'])
@@ -140,4 +140,5 @@ def check_url(id):
         with conn.cursor() as curs:
             curs.execute(f'INSERT INTO url_checks ({SQL_request[0]}) '
                          f'VALUES ({SQL_request[1]})', tuple(SQL_request[2]))
+    flash(check_result['message'], 'success')
     return redirect(url_for('show_url', id=id))
