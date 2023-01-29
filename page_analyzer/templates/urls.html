@@ -43,7 +43,7 @@
                             <tr>
                                 <td>{{ id }}</td>
                                 <td>
-                                <a href="/urls/{{ id }}">
+                                <a href="{{ url_for('show_url', id=id) }}">  
                                 {{ name }}
                                 </a>
                                 </td>
