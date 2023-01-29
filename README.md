@@ -28,4 +28,4 @@ The app is available by link:
 
 # Demonstration
 
-[![WEB-SITES-SEO-CHECKS-DEMO](https://www.youtube.com/watch?v=da7hIOKqymM)
+https://www.youtube.com/watch?v=da7hIOKqymM
