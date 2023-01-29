@@ -15,13 +15,12 @@ def test_urls(client, test_app):
         response = client.get('/urls', follow_redirects=True)
         assert response.status_code == 200
         mock_connect.assert_called_with(test_app.config['DATABASE_URL'])
-        mock_cur.execute.assert_called_with("SELECT urls.id, urls.name, "
-                                            "TO_CHAR(url_checks.created_at, 'DD-MM-YYYY'), "
-                                            "url_checks.status_code FROM urls JOIN url_checks "
-                                            "ON urls.id = url_checks.url_id "
-                                            "GROUP BY urls.id, urls.name, url_checks.created_at, "
-                                            "url_checks.status_code "
-                                            "ORDER BY urls.id DESC, url_checks.created_at DESC LIMIT 30")
+        mock_cur.execute.assert_called_with("SELECT urls.id, urls.name, TO_CHAR(url_checks.created_at, 'DD-MM-YYYY'), "
+                                            "url_checks.status_code FROM urls "
+                                            "JOIN url_checks ON urls.id = url_checks.url_id "
+                                            "WHERE url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
+                                            "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
+                                            "LIMIT 100")
         [(id1, name1, date1, status1),
          (id2, name2, date2, status2),
          (id3, name3, date3, status3)] = mock_cur.fetchall.return_value

@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 import datetime
 from page_analyzer.url_validator import url_parser
 from page_analyzer import make_external_req
+from page_analyzer import get_url_data
 
 
 load_dotenv()
@@ -76,8 +77,9 @@ def show_urls():
         with conn.cursor() as curs:
             curs.execute("SELECT urls.id, urls.name, TO_CHAR(url_checks.created_at, 'DD-MM-YYYY'), "
                          "url_checks.status_code FROM urls JOIN url_checks ON urls.id = url_checks.url_id "
-                         "GROUP BY urls.id, urls.name, url_checks.created_at, url_checks.status_code "
-                         "ORDER BY urls.id DESC, url_checks.created_at DESC LIMIT 30")
+                         "WHERE url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
+                         "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
+                         "LIMIT 100")
             result = curs.fetchall()
 
     return render_template(
@@ -117,11 +119,18 @@ def check_url(id):
         url = session['name']
     today = datetime.date.today().isoformat()
     check_result = make_external_req(url)
+    SQL_request = ['url_id, status_code, created_at', '%s, %s, %s', [id, str(check_result['status_code']), today]]
     if check_result['message']:
         flash(check_result['message'], 'danger')
         return redirect(url_for('show_url', id=id))
+    check_data = get_url_data(check_result['data'])
+    for data in check_data:
+        if check_data[data]:
+            SQL_request[0] = SQL_request[0] + f', {data}'
+            SQL_request[1] = SQL_request[1] + f', %s' # noqa F541
+            SQL_request[2].append(check_data[data])
     with psycopg2.connect(app.config['DATABASE_URL']) as conn:
         with conn.cursor() as curs:
-            curs.execute('INSERT INTO url_checks (url_id, status_code, created_at) '
-                         'VALUES (%s, %s, %s)', (id, str(check_result['status_code']), today))
+            curs.execute(f'INSERT INTO url_checks ({SQL_request[0]}) '
+                         f'VALUES ({SQL_request[1]})', tuple(SQL_request[2]))
     return redirect(url_for('show_url', id=id))

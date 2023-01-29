@@ -1,6 +1,10 @@
+#development variables
+PORT ?= 8000
+DB_NAME = third-project
+LOCAL_DB_USER = ypekatoros
+
 install:
 		poetry install
-
 
 build-db: db-drop db-create schema-data-load
 
@@ -14,39 +18,38 @@ db-stop:
 		sudo service postgresql stop
 
 db-create:
-		createdb third-project
+		createdb $(DB_NAME)
 
 db-drop:
-		dropdb third-project
+		dropdb $(DB_NAME)
 
 db-reset:
-	dropdb third-project || true
-	createdb third-project
+	dropdb $(DB_NAME) || true
+	createdb $(DB_NAME)
 
 dbs-show:
 		psql -l
 
 db-connect:
-	psql -d third-project
+	psql -d $(DB_NAME)
 
-dev-setup: db-reset schema-data-load
+db-dev-setup: db-reset schema-data-load
 
 schema-data-load:
-		psql third-project < database.sql
+		psql $(DB_NAME) < database.sql
 
 db-show-log:
 		vim /var/log/postgresql/postgresql-14-main.log
 
 db-dump:
-		pg_dump -h localhost -d third-project -U ypekatoros -W -Ft > db-project.dump
+		pg_dump -h localhost -d $(DB_NAME) -U $(LOCAL_DB_USER) -W -Ft > db-project.dump
 
 db-railway-update:
-		pg_restore -U postgres -h containers-us-west-148.railway.app -p 7219 -W -Ft -d railway db-project.dump
+		pg_restore -U postgres -h containers-us-west-152.railway.app -p 8050 -W -Ft -d railway db-project.dump
 
-dev:
+dev-server-run:
 		poetry run flask --app page_analyzer:app run
-
-PORT ?= 8000
+	
 start:
 		poetry run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
 
