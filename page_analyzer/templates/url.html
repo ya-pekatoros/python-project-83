@@ -67,7 +67,6 @@
               <tbody>
             <tr>
                 <th>ID проверки</th>
-                <th>ID сайта</th>
                 <th>Код ответа</th>
                 <th>h1</th>
                 <th>title</th>
@@ -75,10 +74,9 @@
                 <th>Дата проверки</th>
             </tr>
             {% if result_checks %}
-            {% for id, url_id, status_code, h1, title, description, created_at in result_checks %}
+            {% for id, _, status_code, h1, title, description, created_at in result_checks %}
             <tr>
                 <td>{{ id }}</td>
-                <td>{{ url_id }}</td>
                 <td>{{ status_code }}</td>
                 <td>{{ h1 }}</td>
                 <td>{{ title }}</td>
