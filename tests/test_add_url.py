@@ -12,7 +12,7 @@ def test_add_url(client, test_app):
         mock_cur = mock_cur_cm.__enter__.return_value  # object assigned to cur in with ... as cur
         today = datetime.date.today().isoformat()
         mock_cur.fetchone.return_value = ('1', "_", today)
-        response = client.post('/', data={
+        response = client.post('/urls', data={
             'url': "https://google.com",
         }, follow_redirects=True)
         assert response.status_code == 200
@@ -28,7 +28,7 @@ def test_add_url(client, test_app):
         assert today.encode("utf-8", "ignore") in response.data
 
         mock_cur.fetchone.return_value = ('1', "https://asus.com", '26-01-2023')
-        response = client.post('/', data={
+        response = client.post('/urls', data={
             'url': "https://asus.com",
         }, follow_redirects=True)
         mock_cur.execute.assert_any_call("SELECT id, name FROM urls WHERE name = %s",
@@ -38,8 +38,9 @@ def test_add_url(client, test_app):
         assert data1 in response.data
         assert flash_mes in response.data
 
-        response = client.post('/', data={
+        response = client.post('/urls', data={
             'url': "google.com",
         }, follow_redirects=True)
+        assert response.status_code == 422
         flash_mes = 'Некорректный URL'.encode("utf-8", "ignore")
         assert flash_mes in response.data

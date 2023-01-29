@@ -45,13 +45,18 @@ def index():
     )
 
 
-@app.route('/', methods=['POST'])
+@app.route('/urls', methods=['POST'])
 def add_url():
     url = request.form['url']
     url_parsed = url_parser(url)
     if url_parsed['result'] is False:
         flash(url_parsed['message'], 'danger')
-        return redirect(url_for('index'))
+        messages = get_flashed_messages(with_categories=True)
+        return render_template(
+            '/index.html',
+            messages=messages,
+            bad_url=url
+        ), 422
     today = datetime.date.today().isoformat()
     with psycopg2.connect(app.config['DATABASE_URL']) as conn:
         with conn.cursor() as curs:
@@ -71,7 +76,7 @@ def add_url():
     return redirect(url_for('show_url', id=result_id))
 
 
-@app.route('/urls')
+@app.route('/urls', methods=['GET'])
 def show_urls():
     with psycopg2.connect(app.config['DATABASE_URL']) as conn:
         with conn.cursor() as curs:
