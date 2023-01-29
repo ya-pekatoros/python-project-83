@@ -68,7 +68,7 @@ def add_url():
             (result_id, *_) = curs.fetchone()
     flash('Страница успешно добавлена', 'success')
     session['name'] = url_parsed['message']
-    return redirect(url_for('check_url', id=result_id))
+    return redirect(url_for('show_url', id=result_id))
 
 
 @app.route('/urls')
@@ -76,8 +76,10 @@ def show_urls():
     with psycopg2.connect(app.config['DATABASE_URL']) as conn:
         with conn.cursor() as curs:
             curs.execute("SELECT urls.id, urls.name, TO_CHAR(url_checks.created_at, 'DD-MM-YYYY'), "
-                         "url_checks.status_code FROM urls JOIN url_checks ON urls.id = url_checks.url_id "
-                         "WHERE url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
+                         "url_checks.status_code FROM urls "
+                         "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
+                         "WHERE url_checks.url_id IS NULL OR "
+                         "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
                          "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
                          "LIMIT 100")
             result = curs.fetchall()
