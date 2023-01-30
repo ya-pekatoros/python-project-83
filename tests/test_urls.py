@@ -21,8 +21,7 @@ def test_urls(client, test_app):
                                             "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
                                             "WHERE url_checks.url_id IS NULL OR "
                                             "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
-                                            "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
-                                            "LIMIT 100")
+                                            "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC ")
         [(id1, name1, date1, status1),
          (id2, name2, date2, status2),
          (id3, name3, date3, status3)] = mock_cur.fetchall.return_value

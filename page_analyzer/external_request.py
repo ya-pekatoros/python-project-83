@@ -1,18 +1,16 @@
 import requests
 
 
-def make_external_req(url):
+def make_request(url):
     message = None
     status_code = None
     data = None
     try:
         request_result = requests.get(url)
+        request_result.raise_for_status()
         status_code = request_result.status_code
-        if status_code == 200:
-            data = request_result.text
-            message = 'Страница успешно проверена'
-        else:
-            raise Exception
+        data = request_result.text
+        message = 'Страница успешно проверена'
     except Exception:
         message = 'Произошла ошибка при проверке'
     return {'status_code': status_code, 'message': message, 'data': data}

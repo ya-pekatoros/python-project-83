@@ -13,7 +13,7 @@ import os
 from dotenv import load_dotenv
 import datetime
 from page_analyzer.url_validator import url_parser
-from page_analyzer import make_external_req
+from page_analyzer import make_request
 from page_analyzer import get_url_data
 
 
@@ -49,7 +49,7 @@ def index():
 def add_url():
     url = request.form['url']
     url_parsed = url_parser(url)
-    if url_parsed['result'] is False:
+    if not url_parsed['result']:
         flash(url_parsed['message'], 'danger')
         messages = get_flashed_messages(with_categories=True)
         return render_template(
@@ -85,8 +85,7 @@ def show_urls():
                          "LEFT JOIN url_checks ON urls.id = url_checks.url_id "
                          "WHERE url_checks.url_id IS NULL OR "
                          "url_checks.id = (SELECT MAX(url_checks.id) FROM url_checks "
-                         "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC "
-                         "LIMIT 100")
+                         "WHERE url_checks.url_id = urls.id) ORDER BY urls.id DESC ")
             result = curs.fetchall()
 
     return render_template(
@@ -104,9 +103,9 @@ def show_url(id):
             result_url = curs.fetchone()
             curs.execute("SELECT id, url_id, status_code, h1, title, description, "
                          "TO_CHAR(created_at, 'DD-MM-YYYY') FROM url_checks WHERE url_id = %s "
-                         "ORDER BY id DESC LIMIT 30", (id,))
+                         "ORDER BY id DESC", (id,))
             result_checks = curs.fetchall()
-    (url_id, name, created_at) = result_url
+    url_id, name, created_at = result_url
     return render_template(
         '/url.html',
         url_id=url_id,
@@ -125,7 +124,7 @@ def check_url(id):
     else:
         url = session['name']
     today = datetime.date.today().isoformat()
-    check_result = make_external_req(url)
+    check_result = make_request(url)
     SQL_request = ['url_id, status_code, created_at', '%s, %s, %s', [id, str(check_result['status_code']), today]]
     if check_result['message'] == 'Произошла ошибка при проверке':
         flash(check_result['message'], 'danger')

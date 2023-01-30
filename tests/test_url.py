@@ -19,7 +19,7 @@ def test_url(client, test_app):
                                          "FROM urls WHERE id = %s", ('1',))
         mock_cur.execute.assert_any_call("SELECT id, url_id, status_code, h1, title, description, "
                                          "TO_CHAR(created_at, 'DD-MM-YYYY') FROM url_checks "
-                                         "WHERE url_id = %s ORDER BY id DESC LIMIT 30", ('1',))
+                                         "WHERE url_id = %s ORDER BY id DESC", ('1',))
         (id, name, date) = mock_cur.fetchone.return_value
         [(id1, id, _, _, _, _, created_at1),
          (id2, _, _, _, _, _, created_at2)] = mock_cur.fetchall.return_value
