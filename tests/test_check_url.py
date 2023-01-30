@@ -1,5 +1,6 @@
 from unittest import mock
 import datetime
+import requests
 
 DATABASE_URL = 'TEST_URL'
 
@@ -25,7 +26,7 @@ def test_check_url(client, test_app):
         data2 = today.encode("utf-8", "ignore")
         assert data1 in response.data
         assert data2 in response.data
-        mock_external_req.side_effect = Exception('URLError')
+        mock_external_req.side_effect = requests.exceptions.HTTPError
         response = client.post('/urls/1/checks', data={'name': 'https://asus.com'}, follow_redirects=True)
         flash_mess = 'Произошла ошибка при проверке'.encode("utf-8", "ignore")
         assert flash_mess in response.data

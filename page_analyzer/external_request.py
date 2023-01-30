@@ -11,6 +11,6 @@ def make_request(url):
         status_code = request_result.status_code
         data = request_result.text
         message = 'Страница успешно проверена'
-    except Exception:
+    except requests.exceptions.RequestException:
         message = 'Произошла ошибка при проверке'
     return {'status_code': status_code, 'message': message, 'data': data}

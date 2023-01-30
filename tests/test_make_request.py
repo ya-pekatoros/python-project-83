@@ -1,5 +1,6 @@
 from page_analyzer import make_request
 from unittest import mock
+import requests
 
 
 def test_make_request():
@@ -11,7 +12,7 @@ def test_make_request():
             'message': 'Страница успешно проверена',
             'data': 'Data'
         }
-        mock_external_req.side_effect = Exception('URLError')
+        mock_external_req.side_effect = requests.exceptions.HTTPError
         assert make_request('https://.com') == {
             'status_code': None,
             'message': 'Произошла ошибка при проверке',
