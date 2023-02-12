@@ -23,7 +23,7 @@
                                 {{ name }}
                                 </a>
                                 </td>
-                                <td>{{ created_at  }}</td>
+                                <td>{{ created_at.strftime('%d-%m-%Y') if created_at else created_at }}</td>
                                 <td>{{ status_code  }}</td>
                             </tr>
                             {% endfor %}

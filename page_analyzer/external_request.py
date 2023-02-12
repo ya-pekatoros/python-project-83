@@ -2,7 +2,6 @@ import requests
 
 
 def make_request(url):
-    message = None
     status_code = None
     data = None
     try:
@@ -10,7 +9,7 @@ def make_request(url):
         request_result.raise_for_status()
         status_code = request_result.status_code
         data = request_result.text
-        message = 'Страница успешно проверена'
+        result = True
     except requests.exceptions.RequestException:
-        message = 'Произошла ошибка при проверке'
-    return {'status_code': status_code, 'message': message, 'data': data}
+        result = False
+    return {'status_code': status_code, 'result': result, 'data': data}

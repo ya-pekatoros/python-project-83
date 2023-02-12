@@ -27,7 +27,7 @@
                 </tr>
                 <tr>
                   <td>Дата создания</td>
-                  <td>{{ created_at }}</td>
+                  <td>{{ created_at.strftime('%d-%m-%Y') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -58,7 +58,7 @@
                 <td>{{ h1 }}</td>
                 <td>{{ title }}</td>
                 <td>{{ description }}</td>
-                <td>{{ created_at  }}</td>
+                <td>{{ created_at.strftime('%d-%m-%Y') }}</td>
             </tr>
             {% endfor %}
             {% endif %}

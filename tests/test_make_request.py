@@ -9,12 +9,12 @@ def test_make_request():
         mock_external_req('https://google.com').text = 'Data'
         assert make_request('https://google.com') == {
             'status_code': 200,
-            'message': 'Страница успешно проверена',
+            'result': True,
             'data': 'Data'
         }
         mock_external_req.side_effect = requests.exceptions.HTTPError
         assert make_request('https://.com') == {
             'status_code': None,
-            'message': 'Произошла ошибка при проверке',
+            'result': False,
             'data': None
         }
